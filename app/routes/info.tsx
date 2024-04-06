@@ -1,21 +1,35 @@
 import { RadioGroup } from "@headlessui/react";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { Form, Link, useNavigation } from "@remix-run/react";
+import {
+  ActionFunction,
+  LoaderFunctionArgs,
+  json,
+  redirect,
+} from "@remix-run/node";
+import { Form, Link, useLoaderData, useNavigation } from "@remix-run/react";
 import { useState } from "react";
 import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
-import { commitSession, getSession } from "~/sessions/activities.server";
+import { activitiesCookie } from "~/sessions/activities.server";
 import { infoCookie } from "~/sessions/info.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const activitiesSession = await getSession(request.headers.get("Cookie"));
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const activitiesSession = await activitiesCookie.getSession(
+    request.headers.get("Cookie"),
+  );
 
-  if (activitiesSession.has("message")) {
-    // Redirect to the activities page if there is a generated recommendation.
+  if (activitiesSession.has("data")) {
+    // Redirect to the activities page if there are recently generated activities recommendation.
     return redirect("/activities");
   }
 
-  return null;
+  const infoSession = await infoCookie.getSession(
+    request.headers.get("Cookie"),
+  );
+  if (infoSession.has("data")) {
+    return json({ info: infoSession.get("data") });
+  }
+
+  return json({ info: null });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -61,15 +75,17 @@ export const action: ActionFunction = async ({ request }) => {
   );
   infoSession.set("data", info);
 
-  const activitiesSession = await getSession(request.headers.get("Cookie"));
+  const activitiesSession = await activitiesCookie.getSession(
+    request.headers.get("Cookie"),
+  );
   const response: ChatGPTResponse = await getPrompt(info);
-  console.log(response.choices[0].message);
-  activitiesSession.set("message", response.choices[0].message);
+  const activities = JSON.parse(response.choices[0].message.content);
+  activitiesSession.set("data", activities);
 
   return redirect("/activities", {
     headers: [
       ["Set-Cookie", await infoCookie.commitSession(infoSession)],
-      ["Set-Cookie", await commitSession(activitiesSession)],
+      ["Set-Cookie", await activitiesCookie.commitSession(activitiesSession)],
     ],
   });
 };
@@ -102,7 +118,13 @@ function classNames(...classes: string[]) {
 }
 
 export default function Info() {
-  const [selected, setSelected] = useState(settings[0]);
+  const { info } = useLoaderData<typeof loader>();
+
+  const [selected, setSelected] = useState(
+    info?.physical
+      ? settings.find((x) => x.description === info.physical) ?? settings[0]
+      : settings[0],
+  );
 
   const navigation = useNavigation();
   const loading = navigation.state === "submitting";
@@ -140,6 +162,7 @@ export default function Info() {
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   placeholder="Fulan"
                   disabled={loading}
+                  defaultValue={info?.name}
                 />
               </div>
             </div>
@@ -160,6 +183,7 @@ export default function Info() {
                   autoComplete="bday-year"
                   placeholder="YYYY"
                   disabled={loading}
+                  defaultValue={new Date().getFullYear() - (info?.age ?? 0)}
                 />
               </div>
             </div>
@@ -180,8 +204,8 @@ export default function Info() {
                   name="interests"
                   id="interest"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  defaultValue={""}
                   disabled={loading}
+                  defaultValue={info?.interests}
                 />
               </div>
             </div>

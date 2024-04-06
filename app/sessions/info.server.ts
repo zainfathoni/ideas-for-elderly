@@ -17,7 +17,8 @@ export const infoCookie = createCookieSessionStorage<
   cookie: {
     name: "info",
     httpOnly: true,
-    maxAge: 3_600,
+    // one week
+    maxAge: 60 * 60 * 24 * 7,
     path: "/",
     sameSite: "lax",
     secrets: [process.env.SESSION_SECRET ?? "any-random-string-would-do"],
