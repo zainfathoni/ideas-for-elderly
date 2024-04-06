@@ -5,15 +5,19 @@ export const composePrompt1 = ({ age, physical, interests }: ChatGPTRequest) =>
     [
         {
             "Title": "<Activity Name>",
+            "Timing": "<Suitable Timing for the activity>",
             "Location": "<Location>",
             "Interest": "<Interest>",
+            "Potential_Service_Provider": "<Potential Service Provider>",
             "Description": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
             "Image_Link": "<URL to an image representing the activity, if available>"
         },
         {
             "Title": "<Activity Name>",
+            "Timing": "<Suitable Timing for the activity>",
             "Location": "<Location>",
             "Interest": "<Interest>",
+            "Potential_Service_Provider": "<Potential Service Provider>",
             "Description": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
             "Image_Link": "<URL to an image representing the activity, if available>"
         }
