@@ -49,9 +49,9 @@ export default function Activities() {
             Recommended Activities
           </h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
-            Hi, {info.name}. Here are some activities that for a(n) {info.age}{" "}
-            years old with {info.interests} interests and is willing to go{" "}
-            {info.physical}.
+            Hi, {info.name}. Here are some activities suitable for a(n){" "}
+            {info.age} years old with {info.interests} interests and is willing
+            to go {info.physical}.
           </p>
           <Link
             to="/info"
