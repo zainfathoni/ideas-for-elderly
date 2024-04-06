@@ -29,5 +29,9 @@ export type Activity = {
 
 export type DetailedActivity = Activity & {
   steps: string;
+  things: string;
+  aptWeather: string;
+  pts: string;
+
   // TODO: Dzuizz to add more fields
 };

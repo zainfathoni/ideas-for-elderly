@@ -5,8 +5,10 @@ import {
   redirect,
 } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { Activity, Info, Message } from "~/models/chat-gpt";
+import { Activity, ChatGPTResponse, DetailedActivity, Info, Message } from "~/models/chat-gpt";
+import { getActivityPrompt } from "~/services/ai";
 import { destroySession, getSession } from "~/utils/activities.server";
+import { commitSession, getSession as getActivitySession } from "~/utils/activity.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -39,6 +41,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const activity = content[index];
     console.log("Picked Activity: ", activity);
     // TODO: Request for activity detail
+
+    const response: ChatGPTResponse = await getActivityPrompt(activity);
+
+    const activitySession = await getActivitySession(request.headers.get("Cookie"));
+
+    const detailedActivity : DetailedActivity = JSON.parse(response.choices[0].message.content);
+
+    activitySession.set("activity", detailedActivity);
+
+    return redirect("/activity", {
+      headers: {
+        "Set-Cookie": await commitSession(activitySession),
+      },
+    });
+
     // TODO: Store the activity detail in the session storage
     // TODO: Redirect to the activity page
   }
