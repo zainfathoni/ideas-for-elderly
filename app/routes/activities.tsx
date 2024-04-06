@@ -1,5 +1,5 @@
 import { LoaderFunction, json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 import { Activity, Info, Message } from "~/models/chat-gpt";
 import { activities } from "../utils/cookies.server";
@@ -53,6 +53,12 @@ export default function Activities() {
             years old with {info.interests} interests and is willing to go{" "}
             {info.physical}.
           </p>
+          <Link
+            to="/info"
+            className="mt-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-500"
+          >
+            Generate new recommendations<span aria-hidden="true">→</span>
+          </Link>
           <div className="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
             {parsedContent.map(({ Title, Description }) => (
               <article

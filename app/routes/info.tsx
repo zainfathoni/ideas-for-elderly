@@ -60,23 +60,23 @@ export const action: ActionFunction = async ({ request }) => {
 const settings = [
   {
     name: "My HDB Block",
-    description: "Around my HDB block only",
+    description: "around my HDB block only",
   },
   {
     name: "My Neighbourhood",
-    description: "Around my neighbourhood only",
+    description: "around my neighbourhood only",
   },
   {
     name: "My Town",
-    description: "Anywhere within my town",
+    description: "anywhere within my town",
   },
   {
     name: "Within Singapore",
-    description: "Anywhere in Singapore",
+    description: "anywhere in Singapore",
   },
   {
     name: "Abroad",
-    description: "Anywhere in the world",
+    description: "anywhere in the world",
   },
 ];
 
