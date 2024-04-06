@@ -54,41 +54,56 @@ export default function Info() {
                 htmlFor="email"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Email address
+                Age
               </label>
               <div className="mt-2">
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="age"
+                  name="age"
+                  type="number"
+                  autoComplete="age"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-4">
+            {/* <div className="sm:col-span-4">
               <label
-                htmlFor="country"
+                htmlFor="location"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Country
+                Location / City
               </label>
               <div className="mt-2">
                 <select
-                  id="country"
-                  name="country"
-                  autoComplete="country-name"
+                  id="location"
+                  name="location"
+                  autoComplete="location-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                 >
-                  <option>United States</option>
-                  <option>Canada</option>
-                  <option>Mexico</option>
+                  <option>Bukit Batok</option>
+                  <option>Orchard Road</option>
+                  <option>Marina Bay</option>
+                  <option>Sentosa Island</option>
+                  <option>Chinatown</option>
+                  <option>Little India</option>
+                  <option>Kampong Glam</option>
+                  <option>Tampines</option>
+                  <option>Jurong East</option>
+                  <option>Woodlands</option>
+                  <option>Punggol</option>
+                  <option>Clarke Quay</option>
+                  <option>East Coast Park</option>
+                  <option>Bugis</option>
+                  <option>Ang Mo Kio</option>
+                  <option>Pasir Ris</option>
+                  <option>test</option>
+                  <option>test</option>
                 </select>
               </div>
-            </div>
+            </div> */}
 
-            <div className="col-span-full">
+            {/* <div className="col-span-full">
               <label
                 htmlFor="street-address"
                 className="block text-sm font-medium leading-6 text-gray-900"
@@ -104,27 +119,27 @@ export default function Info() {
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="sm:col-span-2 sm:col-start-1">
               <label
-                htmlFor="city"
+                htmlFor="physical"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                City
+                Physical Ability
               </label>
               <div className="mt-2">
                 <input
-                  type="text"
-                  name="city"
-                  id="city"
+                  type="range"
+                  name="physical"
+                  id="physical"
                   autoComplete="address-level2"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-2">
+            {/* <div className="sm:col-span-2">
               <label
                 htmlFor="region"
                 className="block text-sm font-medium leading-6 text-gray-900"
@@ -158,7 +173,7 @@ export default function Info() {
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
         <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
