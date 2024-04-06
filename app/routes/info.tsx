@@ -13,7 +13,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const response = await getPrompt({ firstName });
-  console.log(response);
+  console.log(response.choices[0].message);
   return redirect("/activity");
 };
 
