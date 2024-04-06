@@ -28,7 +28,7 @@ export default function Index() {
             Get started
           </Link>
           <Link
-            to="/activity"
+            to="/activities"
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Explore our recent recommendations<span aria-hidden="true">→</span>

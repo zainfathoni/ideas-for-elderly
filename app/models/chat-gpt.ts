@@ -14,3 +14,9 @@ export type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
+export type Activity = {
+  Title: string;
+  Description: string;
+  Image_Link: string;
+};

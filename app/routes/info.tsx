@@ -44,8 +44,9 @@ export const action: ActionFunction = async ({ request }) => {
   });
   console.log(response.choices[0].message);
 
-  return redirect("/activity", {
+  return redirect("/activities", {
     headers: {
+      // TODO: Store the info in the cookie, too
       "Set-Cookie": await activity.serialize(response.choices[0].message),
     },
   });
