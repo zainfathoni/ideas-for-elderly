@@ -1,6 +1,6 @@
 import { RadioGroup } from "@headlessui/react";
 import { ActionFunction, redirect } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, Link, useNavigation } from "@remix-run/react";
 import { useState } from "react";
 import { ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
@@ -81,6 +81,9 @@ function classNames(...classes: string[]) {
 export default function Info() {
   const [selected, setSelected] = useState(settings[0]);
 
+  const navigation = useNavigation();
+  const loading = navigation.state === "submitting";
+
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
       <div className="px-4 sm:px-0">
@@ -88,7 +91,7 @@ export default function Info() {
           Personal Information
         </h2>
         <p className="mt-1 text-sm leading-6 text-gray-600">
-          Use a permanent address where you can receive mail.
+          Tell us about yourself so we can better assist you.
         </p>
       </div>
 
@@ -244,17 +247,21 @@ export default function Info() {
           </div>
         </div>
         <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-          <button
-            type="button"
-            className="text-sm font-semibold leading-6 text-gray-900"
+          <Link
+            to="/"
+            className="text-sm leading-6 text-gray-600 hover:text-gray-800"
           >
             Cancel
-          </button>
+          </Link>
           <button
             type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            disabled={loading}
+            className={classNames(
+              "rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+              loading ? "cursor-not-allowed bg-indigo-400" : "bg-indigo-600",
+            )}
           >
-            Save
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </div>
       </Form>
