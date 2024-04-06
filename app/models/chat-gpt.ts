@@ -19,6 +19,8 @@ export type Message = {
 
 export type Activity = {
   Title: string;
+  Location: string;
+  Interest: string;
   Description: string;
   Image_Link: string;
 };
