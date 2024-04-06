@@ -1,10 +1,10 @@
 import type {
   ActionFunctionArgs,
-  LoaderFunction,
+  LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
 import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
-import { destroySession, getSession } from "~/sessions/activities.server";
+import { activitiesCookie } from "~/sessions/activities.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,23 +16,27 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get("Cookie"));
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const activitiesSession = await activitiesCookie.getSession(
+    request.headers.get("Cookie"),
+  );
 
-  return { hasActivities: session.has("message") };
+  return { hasActivities: activitiesSession.has("data") };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
+  const activitiesSession = await activitiesCookie.getSession(
+    request.headers.get("Cookie"),
+  );
   return redirect("/info", {
     headers: {
-      "Set-Cookie": await destroySession(session),
+      "Set-Cookie": await activitiesCookie.destroySession(activitiesSession),
     },
   });
 };
 
 export default function Index() {
-  const { hasActivities } = useLoaderData<{ hasActivities: boolean }>();
+  const { hasActivities } = useLoaderData<typeof loader>();
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
