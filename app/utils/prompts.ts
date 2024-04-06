@@ -10,7 +10,7 @@ export const composePrompt1 = ({ age, physical, interests }: ChatGPTRequest) =>
             "int": "<Interest>",
             "prov": "<Potential Service Provider>",
             "provLink": "<Potential Service Provider>",
-            "desk": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
+            "desc": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
         },
         
             "name": "<Activity Name>",
@@ -19,7 +19,7 @@ export const composePrompt1 = ({ age, physical, interests }: ChatGPTRequest) =>
             "int": "<Interest>",
             "prov": "<Potential Service Provider>",
             "provLink": "<Potential Service Provider>",
-            "desk": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
+            "desc": "<Detailed description including time, and any special considerations like accessibility, cultural relevance, or physical demand level>",
         },
     ]
 `;
