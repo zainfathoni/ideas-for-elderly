@@ -1,3 +1,19 @@
+import { ActionFunction, json } from "@remix-run/node";
+import { Form } from "@remix-run/react";
+import { getPrompt } from "~/services/ai";
+
+export const action: ActionFunction = async ({ request }) => {
+  const form = await request.formData();
+  const firstName = form.get("first-name");
+
+  if (typeof firstName !== "string") {
+    throw new Error("Invalid first name");
+  }
+
+  const response = await getPrompt({ firstName });
+  return json({ response });
+};
+
 export default function Info() {
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
@@ -10,7 +26,10 @@ export default function Info() {
         </p>
       </div>
 
-      <form className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
+      <Form
+        method="post"
+        className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
+      >
         <div className="px-4 py-6 sm:p-8">
           <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
             <div className="sm:col-span-3">
@@ -190,7 +209,7 @@ export default function Info() {
             Save
           </button>
         </div>
-      </form>
+      </Form>
     </div>
   );
 }

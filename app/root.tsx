@@ -1,4 +1,3 @@
-import { LinksFunction } from "@remix-run/node";
 import {
   Links,
   Meta,
@@ -6,9 +5,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import styles from "./tailwind.css";
-
-export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
+import "./tailwind.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,8 +27,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <div className="mx-auto grid max-w-4xl">
-      <Outlet />;
+    <div className="flex w-full max-w-7xl px-8">
+      <main className="mx-auto grid max-w-4xl">
+        <Outlet />
+      </main>
     </div>
   );
 }
