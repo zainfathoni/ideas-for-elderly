@@ -1,7 +1,7 @@
-import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DetailedActivity } from "~/models/chat-gpt";
-import { getSession } from "~/sessions/activity.server";
+import { activityCookie } from "~/sessions/activity.server";
 
 const stats = [
   { label: "Founded", value: "2021" },
@@ -10,15 +10,23 @@ const stats = [
   { label: "Raised", value: "$25M" },
 ];
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get("Cookie"));
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const activitySession = await activityCookie.getSession(
+    request.headers.get("Cookie"),
+  );
 
-  if (!session.has("activity")) {
-    // Redirect to the activities page if there is a generated recommendation.
+  const { index } = params;
+  if (!index || (index !== "0" && index !== "1" && index !== "2")) {
+    // Redirect to the activities page if the index is invalid.
     return redirect("/activities");
   }
 
-  return json({ activity: session.get("activity") });
+  if (!activitySession.has(index)) {
+    // Redirect to the activities page if there is no element in the index.
+    return redirect("/activities");
+  }
+
+  return json({ activity: activitySession.get(index) });
 };
 
 export default function Activity() {

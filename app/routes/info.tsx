@@ -11,6 +11,7 @@ import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
 import { activitiesCookie } from "~/sessions/activities.server";
 import { infoCookie } from "~/sessions/info.server";
+import { classNames } from "~/utils/class-names";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const activitiesSession = await activitiesCookie.getSession(
@@ -112,10 +113,6 @@ const settings = [
     description: "anywhere in the world",
   },
 ];
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
 
 export default function Info() {
   const { info } = useLoaderData<typeof loader>();

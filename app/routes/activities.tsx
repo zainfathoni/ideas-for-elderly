@@ -4,12 +4,13 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { ChatGPTResponse, DetailedActivity } from "~/models/chat-gpt";
 import { getActivityPrompt } from "~/services/ai";
 import { activitiesCookie } from "~/sessions/activities.server";
-import { commitSession, getSession } from "~/sessions/activity.server";
+import { activityCookie } from "~/sessions/activity.server";
 import { infoCookie } from "~/sessions/info.server";
+import { classNames } from "~/utils/class-names";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const infoSession = await infoCookie.getSession(
@@ -38,24 +39,36 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const form = await request.formData();
   const method = form.get("_method");
   if (method === "delete") {
+    const activitySession = await activityCookie.getSession(
+      request.headers.get("Cookie"),
+    );
     return redirect("/info", {
       headers: [
-        // Remove the session cookie
+        // Remove the activity-related session cookies
         [
           "Set-Cookie",
           await activitiesCookie.destroySession(activitiesSession),
         ],
+        ["Set-Cookie", await activityCookie.destroySession(activitySession)],
       ],
     });
   }
 
-  const index = parseInt(form.get("index") as string);
-  if (Number.isInteger(index)) {
+  const index = form.get("index") as string | null;
+  if (index && (index === "0" || index === "1" || index === "2")) {
     const activities = activitiesSession.get("data");
-    const activity = activities?.[index];
+    const activity = activities?.[parseInt(index)];
     console.log("Picked Activity: ", activity);
     if (!activity) {
       return null;
+    }
+
+    const activitySession = await activityCookie.getSession(
+      request.headers.get("Cookie"),
+    );
+    if (activitySession.has(index)) {
+      // Redirect to the activity page if the activity is already elaborated.
+      return redirect(`/activity/${index}`);
     }
 
     const response: ChatGPTResponse = await getActivityPrompt(activity);
@@ -63,12 +76,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       response.choices[0].message.content,
     );
 
-    const activitySession = await getSession(request.headers.get("Cookie"));
-    activitySession.set("activity", detailedActivity);
+    activitySession.set(index, detailedActivity);
 
-    return redirect("/activity", {
+    return redirect(`/activity/${index}`, {
       headers: {
-        "Set-Cookie": await commitSession(activitySession),
+        "Set-Cookie": await activityCookie.commitSession(activitySession),
       },
     });
   }
@@ -78,6 +90,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Activities() {
   const { info, activities } = useLoaderData<typeof loader>();
+
+  const navigation = useNavigation();
+  const loading = navigation.state === "submitting";
+  const loadingIndex = navigation.formData?.get("index") ?? -1;
+  console.log("Loading Index: ", loadingIndex);
 
   if (!info || !activities) {
     return null;
@@ -166,9 +183,16 @@ export default function Activities() {
                           <input type="hidden" name="index" value={index} />
                           <button
                             type="submit"
-                            className="ml-auto rounded bg-white px-2 py-1 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                            disabled={loading}
+                            className={classNames(
+                              "ml-auto rounded bg-white px-2 py-1 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
+                              loading ? "cursor-not-allowed bg-gray-50" : "",
+                            )}
                           >
-                            Elaborate more
+                            {/* FIXME: Somehow the loadingIndex is not equal index */}
+                            {loading && loadingIndex === index
+                              ? "Elaborating..."
+                              : "Elaborate more"}
                           </button>
                         </div>
                       </div>
