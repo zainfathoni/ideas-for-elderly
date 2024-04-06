@@ -57,20 +57,23 @@ export default function Activities() {
             to go {info.physical}.
           </p>
           <Form method="post">
-            <button className="mt-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-500">
+            <button
+              type="submit"
+              className="mt-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-500"
+            >
               Generate new recommendations<span aria-hidden="true">→</span>
             </button>
           </Form>
           <div className="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
             {parsedContent.map(
               ({
-                Title,
-                Timing,
-                Interest,
-                Location,
-                Potential_Service_Provider,
-                Link_To_Potential_Service_Provider,
-                Description,
+                name: Title,
+                time: Timing,
+                int: Interest,
+                loc: Location,
+                prov: Potential_Service_Provider,
+                provLink: Link_To_Potential_Service_Provider,
+                desc: Description,
               }) => (
                 <article
                   key={Title}

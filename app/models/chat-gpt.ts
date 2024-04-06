@@ -18,11 +18,11 @@ export type Message = {
 };
 
 export type Activity = {
-  Title: string;
-  Timing: string;
-  Location: string;
-  Interest: string;
-  Potential_Service_Provider: string;
-  Link_To_Potential_Service_Provider: string;
-  Description: string;
+  name: string;
+  time: string;
+  loc: string;
+  int: string;
+  prov: string;
+  provLink: string;
+  desc: string;
 };
