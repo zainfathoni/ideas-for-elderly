@@ -60,7 +60,7 @@ export default function Activities() {
             Generate new recommendations<span aria-hidden="true">→</span>
           </Link>
           <div className="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
-            {parsedContent.map(({ Title, Description }) => (
+            {parsedContent.map(({ Title, Interest, Location, Description }) => (
               <article
                 key={Title}
                 className="relative isolate flex flex-col gap-8 lg:flex-row"
@@ -74,6 +74,12 @@ export default function Activities() {
                   <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
                 </div>
                 <div>
+                  <div className="flex items-center gap-x-4 text-xs">
+                    <span className="text-gray-500">{Location}</span>
+                    <span className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100">
+                      {Interest}
+                    </span>
+                  </div>
                   <div className="group relative max-w-xl">
                     <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
                       <span className="absolute inset-0" />
