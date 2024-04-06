@@ -6,7 +6,7 @@ import {
 } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 import { Activity, Info, Message } from "~/models/chat-gpt";
-import { destroySession, getSession } from "~/utils/sessions.server";
+import { destroySession, getSession } from "~/utils/activities.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));

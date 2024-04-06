@@ -26,3 +26,8 @@ export type Activity = {
   provLink: string;
   desc: string;
 };
+
+export type DetailedActivity = Activity & {
+  steps: string;
+  // TODO: Dzuizz to add more fields
+};

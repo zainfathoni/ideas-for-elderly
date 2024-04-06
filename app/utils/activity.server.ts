@@ -1,10 +1,9 @@
 // app/sessions.ts
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
-import { Info, Message } from "~/models/chat-gpt";
+import { DetailedActivity } from "~/models/chat-gpt";
 
 type SessionData = {
-  info: Info;
-  message: Message;
+  activity: DetailedActivity;
 };
 
 type SessionFlashData = {
@@ -15,7 +14,7 @@ const { getSession, commitSession, destroySession } =
   createCookieSessionStorage<SessionData, SessionFlashData>({
     // a Cookie from `createCookie` or the CookieOptions to create one
     cookie: {
-      name: "__session",
+      name: "activity",
 
       // all of these are optional
       // Expires can also be set (although maxAge overrides it when used in combination).

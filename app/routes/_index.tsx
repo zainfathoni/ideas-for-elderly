@@ -1,6 +1,10 @@
-import type { ActionFunctionArgs, LoaderFunction, MetaFunction } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LoaderFunction,
+  MetaFunction,
+} from "@remix-run/node";
 import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
-import { destroySession, getSession } from "~/utils/sessions.server";
+import { destroySession, getSession } from "~/utils/activities.server";
 
 export const meta: MetaFunction = () => {
   return [

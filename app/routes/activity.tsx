@@ -1,3 +1,8 @@
+import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { DetailedActivity } from "~/models/chat-gpt";
+import { getSession } from "~/utils/activity.server";
+
 const stats = [
   { label: "Founded", value: "2021" },
   { label: "Employees", value: "37" },
@@ -5,7 +10,22 @@ const stats = [
   { label: "Raised", value: "$25M" },
 ];
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if (!session.has("activity")) {
+    // Redirect to the activities page if there is a generated recommendation.
+    return redirect("/activities");
+  }
+
+  return json({ activity: session.get("activity") });
+};
+
 export default function Activity() {
+  const { activity } = useLoaderData<{
+    activity: DetailedActivity;
+  }>();
+  console.log(activity);
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

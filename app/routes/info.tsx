@@ -4,7 +4,7 @@ import { Form, Link, useNavigation } from "@remix-run/react";
 import { useState } from "react";
 import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
-import { commitSession, getSession } from "~/utils/sessions.server";
+import { commitSession, getSession } from "~/utils/activities.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await getSession(request.headers.get("Cookie"));
