@@ -6,13 +6,28 @@ import { getPrompt } from "~/services/ai";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
-  const firstName = form.get("first-name");
+  const name = form.get("name");
+  const age = form.get("age");
+  const physical = form.get("physical");
+  const interests = form.get("interests");
 
-  if (typeof firstName !== "string") {
+  if (typeof name !== "string") {
     throw new Error("Invalid first name");
   }
 
-  const response = await getPrompt({ firstName });
+  if (typeof age !== "string") {
+    throw new Error("Invalid age");
+  }
+  
+  if (typeof physical !== "string") {
+    throw new Error("Invalid physical capability");
+  }
+  
+    if (typeof interests !== "string") {
+      throw new Error("Please input at least one interest");
+    }
+
+  const response = await getPrompt({ age, physical, interests });
   console.log(response.choices[0].message);
   return redirect("/activity");
 };
@@ -69,19 +84,19 @@ export default function Info() {
                 htmlFor="first-name"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                First name
+                Name
               </label>
               <div className="mt-2">
                 <input
                   type="text"
-                  name="first-name"
-                  id="first-name"
+                  name="name"
+                  id="name"
                   autoComplete="given-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
-
+{/* 
             <div className="sm:col-span-3">
               <label
                 htmlFor="last-name"
@@ -98,11 +113,11 @@ export default function Info() {
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="sm:col-span-4">
               <label
-                htmlFor="email"
+                htmlFor="age"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Age
@@ -112,7 +127,6 @@ export default function Info() {
                   id="age"
                   name="age"
                   type="number"
-                  autoComplete="age"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -120,7 +134,7 @@ export default function Info() {
 
             <div className="sm:col-span-4">
               <label
-                htmlFor="email"
+                htmlFor="interests"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 What do you like?
@@ -133,7 +147,6 @@ export default function Info() {
                   id="interests"
                   name="interests"
                   type="text"
-                  autoComplete="interests"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -203,6 +216,7 @@ export default function Info() {
               <p className="mt-2 text-sm leading-6 text-gray-600">
                 How far are you willing to go?
               </p>
+              <input type="hidden" name="physical" value={selected.description}></input>
               <div className="mt-2">
                 <RadioGroup value={selected} onChange={setSelected}>
                   <RadioGroup.Label className="sr-only">
