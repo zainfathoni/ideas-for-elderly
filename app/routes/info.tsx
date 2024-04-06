@@ -1,5 +1,7 @@
+import { RadioGroup } from "@headlessui/react";
 import { ActionFunction, json } from "@remix-run/node";
 import { Form } from "@remix-run/react";
+import { useState } from "react";
 import { getPrompt } from "~/services/ai";
 
 export const action: ActionFunction = async ({ request }) => {
@@ -14,7 +16,36 @@ export const action: ActionFunction = async ({ request }) => {
   return json({ response });
 };
 
+const settings = [
+  {
+    name: "My HDB Block",
+    description: "Around my HDB block only",
+  },
+  {
+    name: "My Neighbourhood",
+    description: "Around my neighbourhood only",
+  },
+  {
+    name: "My Town",
+    description: "Anywhere within my town",
+  },
+  {
+    name: "Within Singapore",
+    description: "Anywhere in Singapore",
+  },
+  {
+    name: "Abroad",
+    description: "Anywhere in the world",
+  },
+];
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 export default function Info() {
+  const [selected, setSelected] = useState(settings[0]);
+
   return (
     <div className="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
       <div className="px-4 sm:px-0">
@@ -80,7 +111,7 @@ export default function Info() {
                   id="age"
                   name="age"
                   type="number"
-                  autoComplete="age"
+                  autoComplete="age" // Fix: Update the value to "age"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
@@ -140,21 +171,83 @@ export default function Info() {
               </div>
             </div> */}
 
-            <div className="sm:col-span-2 sm:col-start-1">
+            <div className="sm:col-span-6 sm:col-start-1">
               <label
                 htmlFor="physical"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
                 Physical Ability
               </label>
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                How far are you willing to go?
+              </p>
               <div className="mt-2">
-                <input
-                  type="range"
-                  name="physical"
-                  id="physical"
-                  autoComplete="address-level2"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
+                <RadioGroup value={selected} onChange={setSelected}>
+                  <RadioGroup.Label className="sr-only">
+                    Physical Ability
+                  </RadioGroup.Label>
+                  <div className="-space-y-px rounded-md bg-white">
+                    {settings.map((setting, settingIdx) => (
+                      <RadioGroup.Option
+                        key={setting.name}
+                        value={setting}
+                        className={({ checked }) =>
+                          classNames(
+                            settingIdx === 0
+                              ? "rounded-tl-md rounded-tr-md"
+                              : "",
+                            settingIdx === settings.length - 1
+                              ? "rounded-bl-md rounded-br-md"
+                              : "",
+                            checked
+                              ? "z-10 border-indigo-200 bg-indigo-50"
+                              : "border-gray-200",
+                            "relative flex cursor-pointer border p-4 focus:outline-none",
+                          )
+                        }
+                      >
+                        {({ active, checked }) => (
+                          <>
+                            <span
+                              className={classNames(
+                                checked
+                                  ? "bg-indigo-600 border-transparent"
+                                  : "bg-white border-gray-300",
+                                active
+                                  ? "ring-2 ring-offset-2 ring-indigo-600"
+                                  : "",
+                                "mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded-full border flex items-center justify-center",
+                              )}
+                              aria-hidden="true"
+                            >
+                              <span className="rounded-full bg-white w-1.5 h-1.5" />
+                            </span>
+                            <span className="ml-3 flex flex-col">
+                              <RadioGroup.Label
+                                as="span"
+                                className={classNames(
+                                  checked ? "text-indigo-900" : "text-gray-900",
+                                  "block text-sm font-medium",
+                                )}
+                              >
+                                {setting.name}
+                              </RadioGroup.Label>
+                              <RadioGroup.Description
+                                as="span"
+                                className={classNames(
+                                  checked ? "text-indigo-700" : "text-gray-500",
+                                  "block text-sm",
+                                )}
+                              >
+                                {setting.description}
+                              </RadioGroup.Description>
+                            </span>
+                          </>
+                        )}
+                      </RadioGroup.Option>
+                    ))}
+                  </div>
+                </RadioGroup>
               </div>
             </div>
 
