@@ -2,6 +2,7 @@ import { RadioGroup } from "@headlessui/react";
 import { ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { useState } from "react";
+import { ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
 import { activity } from "../utils/cookies.server";
 
@@ -13,7 +14,7 @@ export const action: ActionFunction = async ({ request }) => {
     throw new Error("Invalid first name");
   }
 
-  const response = await getPrompt({ firstName });
+  const response: ChatGPTResponse = await getPrompt({ firstName });
   console.log(response.choices[0].message);
 
   return redirect("/activity", {
