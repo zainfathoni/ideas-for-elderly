@@ -1,9 +1,8 @@
 // app/sessions.ts
 import { createCookieSessionStorage } from "@remix-run/node"; // or cloudflare/deno
-import { Info, Message } from "~/models/chat-gpt";
+import { Message } from "~/models/chat-gpt";
 
 type SessionData = {
-  info: Info;
   message: Message;
 };
 

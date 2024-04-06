@@ -4,12 +4,13 @@ import { Form, Link, useNavigation } from "@remix-run/react";
 import { useState } from "react";
 import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
-import { commitSession, getSession } from "~/utils/activities.server";
+import { commitSession, getSession } from "~/sessions/activities.server";
+import { infoCookie } from "~/sessions/info.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get("Cookie"));
+  const activitiesSession = await getSession(request.headers.get("Cookie"));
 
-  if (session.has("message")) {
+  if (activitiesSession.has("message")) {
     // Redirect to the activities page if there is a generated recommendation.
     return redirect("/activities");
   }
@@ -55,17 +56,21 @@ export const action: ActionFunction = async ({ request }) => {
     interests,
   };
 
-  const session = await getSession(request.headers.get("Cookie"));
-  session.set("info", info);
+  const infoSession = await infoCookie.getSession(
+    request.headers.get("Cookie"),
+  );
+  infoSession.set("data", info);
 
+  const activitiesSession = await getSession(request.headers.get("Cookie"));
   const response: ChatGPTResponse = await getPrompt(info);
   console.log(response.choices[0].message);
-  session.set("message", response.choices[0].message);
+  activitiesSession.set("message", response.choices[0].message);
 
   return redirect("/activities", {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
+    headers: [
+      ["Set-Cookie", await infoCookie.commitSession(infoSession)],
+      ["Set-Cookie", await commitSession(activitiesSession)],
+    ],
   });
 };
 

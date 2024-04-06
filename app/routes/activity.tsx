@@ -1,7 +1,7 @@
 import { LoaderFunction, json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DetailedActivity } from "~/models/chat-gpt";
-import { getSession } from "~/utils/activity.server";
+import { getSession } from "~/sessions/activity.server";
 
 const stats = [
   { label: "Founded", value: "2021" },

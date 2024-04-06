@@ -4,7 +4,7 @@ import type {
   MetaFunction,
 } from "@remix-run/node";
 import { Form, Link, redirect, useLoaderData } from "@remix-run/react";
-import { destroySession, getSession } from "~/utils/activities.server";
+import { destroySession, getSession } from "~/sessions/activities.server";
 
 export const meta: MetaFunction = () => {
   return [

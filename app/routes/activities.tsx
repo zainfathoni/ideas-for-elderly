@@ -1,36 +1,56 @@
 import {
   ActionFunctionArgs,
-  LoaderFunction,
+  LoaderFunctionArgs,
   json,
   redirect,
 } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
-import { Activity, ChatGPTResponse, DetailedActivity, Info, Message } from "~/models/chat-gpt";
+import {
+  Activity,
+  ChatGPTResponse,
+  DetailedActivity,
+  Message,
+} from "~/models/chat-gpt";
 import { getActivityPrompt } from "~/services/ai";
-import { destroySession, getSession } from "~/utils/activities.server";
-import { commitSession, getSession as getActivitySession } from "~/utils/activity.server";
+import { destroySession, getSession } from "~/sessions/activities.server";
+import {
+  commitSession,
+  getSession as getActivitySession,
+} from "~/sessions/activity.server";
+import { infoCookie } from "~/sessions/info.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const session = await getSession(request.headers.get("Cookie"));
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const infoSession = await infoCookie.getSession(
+    request.headers.get("Cookie"),
+  );
+  const activitiesSession = await getSession(request.headers.get("Cookie"));
 
-  if (!session.has("message")) {
-    // Redirect to the activities page if there is a generated recommendation.
+  if (!infoSession.has("data") || !activitiesSession.has("message")) {
+    // Redirect to the info page if there are either missing info or activities.
     return redirect("/info");
   }
 
-  return json({ info: session.get("info"), message: session.get("message") });
+  return json({
+    info: infoSession.get("data"),
+    message: activitiesSession.get("message"),
+  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
+  const infoSession = await infoCookie.getSession(
+    request.headers.get("Cookie"),
+  );
   const session = await getSession(request.headers.get("Cookie"));
 
   const form = await request.formData();
   const method = form.get("_method");
   if (method === "delete") {
     return redirect("/info", {
-      headers: {
-        "Set-Cookie": await destroySession(session),
-      },
+      headers: [
+        // Remove the session cookie
+        ["Set-Cookie", await infoCookie.destroySession(infoSession)],
+        ["Set-Cookie", await destroySession(session)],
+      ],
     });
   }
 
@@ -40,13 +60,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const content = JSON.parse(message.content) as Activity[];
     const activity = content[index];
     console.log("Picked Activity: ", activity);
-    // TODO: Request for activity detail
 
     const response: ChatGPTResponse = await getActivityPrompt(activity);
 
-    const activitySession = await getActivitySession(request.headers.get("Cookie"));
+    const activitySession = await getActivitySession(
+      request.headers.get("Cookie"),
+    );
 
-    const detailedActivity : DetailedActivity = JSON.parse(response.choices[0].message.content);
+    const detailedActivity: DetailedActivity = JSON.parse(
+      response.choices[0].message.content,
+    );
 
     activitySession.set("activity", detailedActivity);
 
@@ -55,25 +78,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         "Set-Cookie": await commitSession(activitySession),
       },
     });
-
-    // TODO: Store the activity detail in the session storage
-    // TODO: Redirect to the activity page
   }
 
   return null;
 };
 
 export default function Activities() {
-  const { info, message } = useLoaderData<{
-    info: Info;
-    message: Message;
-  }>();
+  const { info, message } = useLoaderData<typeof loader>();
   console.log(info);
 
   const content = message?.content;
   console.log(content);
 
-  if (!content) {
+  if (!info || !content) {
     return null;
   }
 
@@ -88,8 +105,8 @@ export default function Activities() {
           </h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
             Hi, {info.name}. Here are some activities suitable for a(n){" "}
-            {info.age} years old with {info.interests} interests and is willing
-            to go {info.physical}.
+            {info.age} years old with {info.interests} interest(s) and is
+            willing to go {info.physical}.
           </p>
           <Form method="post">
             <input type="hidden" name="_method" value="delete" />
