@@ -2,7 +2,9 @@ import { RadioGroup } from "@headlessui/react";
 import { ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { useState } from "react";
+import { ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
+import { activity } from "../utils/cookies.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
@@ -27,9 +29,14 @@ export const action: ActionFunction = async ({ request }) => {
       throw new Error("Please input at least one interest");
     }
 
-  const response = await getPrompt({ age, physical, interests });
+  const response: ChatGPTResponse = await getPrompt({ age, physical, interests });
   console.log(response.choices[0].message);
-  return redirect("/activity");
+
+  return redirect("/activity", {
+    headers: {
+      "Set-Cookie": await activity.serialize(response.choices[0].message),
+    },
+  });
 };
 
 const settings = [

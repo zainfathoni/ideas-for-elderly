@@ -1,3 +1,8 @@
+import { LoaderFunction, json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import { Message } from "~/models/chat-gpt";
+import { activity } from "../utils/cookies.server";
+
 const stats = [
   { label: "Founded", value: "2021" },
   { label: "Employees", value: "37" },
@@ -5,7 +10,17 @@ const stats = [
   { label: "Raised", value: "$25M" },
 ];
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie: Message = (await activity.parse(cookieHeader)) || {};
+
+  return json({ activity: cookie });
+};
+
 export default function Activity() {
+  const { activity } = useLoaderData<{ activity: Message }>();
+  console.log(activity);
+
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

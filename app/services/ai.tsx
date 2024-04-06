@@ -8,13 +8,13 @@ const headers = {
   Authorization: `Bearer ${apiKey}`,
 };
 
-export async function getPrompt({ age, physical_capability, interests }: { age: string, physical_capability: string, interests: string }) {
+export async function getPrompt({ age, physical, interests }: { age: string, physical: string, interests: string }) {
   try {
     const response = await fetch(endpoint, {
       method: "POST",
       headers,
       body: JSON.stringify({
-        messages: [{ role: "user", content: composePrompt1({ age, physical_capability, interests })}],
+        messages: [{ role: "user", content: composePrompt1({ age, physical, interests })}],
         model: "gpt-4",
       }),
     });
