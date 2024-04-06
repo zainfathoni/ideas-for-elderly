@@ -23,6 +23,6 @@ export type Activity = {
   Location: string;
   Interest: string;
   Potential_Service_Provider: string;
+  Link_To_Potential_Service_Provider: string;
   Description: string;
-  Image_Link: string;
 };
