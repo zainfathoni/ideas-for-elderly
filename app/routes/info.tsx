@@ -117,6 +117,7 @@ export default function Info() {
                   autoComplete="given-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   placeholder="Fulan"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -136,6 +137,7 @@ export default function Info() {
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   autoComplete="bday-year"
                   placeholder="YYYY"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -157,6 +159,7 @@ export default function Info() {
                   id="interest"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   defaultValue={""}
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -174,10 +177,14 @@ export default function Info() {
               <input
                 type="hidden"
                 name="physical"
+                disabled={loading}
                 value={selected.description}
               ></input>
               <div className="mt-2">
-                <RadioGroup value={selected} onChange={setSelected}>
+                <RadioGroup
+                  value={selected}
+                  onChange={loading ? () => {} : setSelected}
+                >
                   <RadioGroup.Label className="sr-only">
                     Physical Ability
                   </RadioGroup.Label>
