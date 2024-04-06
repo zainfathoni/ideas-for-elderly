@@ -67,6 +67,7 @@ export default function Activities() {
                 Interest,
                 Location,
                 Potential_Service_Provider,
+                Link_To_Potential_Service_Provider,
                 Description,
               }) => (
                 <article
@@ -106,8 +107,22 @@ export default function Activities() {
                         />
                         <div className="text-sm leading-6">
                           <p className="font-semibold text-gray-900">
-                            <span className="absolute inset-0" />
-                            {Potential_Service_Provider}
+                            {Link_To_Potential_Service_Provider?.length ? (
+                              <a
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                href={Link_To_Potential_Service_Provider}
+                                className="group hover:text-gray-600"
+                              >
+                                <span className="absolute inset-0" />
+                                {Potential_Service_Provider}
+                              </a>
+                            ) : (
+                              <span>
+                                <span className="absolute inset-0" />
+                                {Potential_Service_Provider}
+                              </span>
+                            )}
                           </p>
                           <p className="text-gray-600">{Location}</p>
                         </div>
