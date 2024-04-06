@@ -1,5 +1,6 @@
-import { LoaderFunction, json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useEffect } from "react";
 import { Message } from "~/models/chat-gpt";
 import { activity } from "../utils/cookies.server";
 
@@ -12,17 +13,34 @@ const stats = [
 
 export const loader: LoaderFunction = async ({ request }) => {
   const cookieHeader = request.headers.get("Cookie");
-  const cookie: Message = (await activity.parse(cookieHeader)) || {};
+  const cookie: Message | null = (await activity.parse(cookieHeader)) || {};
+
+  console.log(cookie);
+
+  if (!cookie) {
+    return redirect("/");
+  }
 
   return json({ activity: cookie });
 };
 
 export default function Activity() {
-  const { activity } = useLoaderData<{ activity: Message }>();
+  const navigate = useNavigate();
+  const { activity } = useLoaderData<{ activity: Message | null }>();
   console.log(activity);
 
-  const content = activity.content;
+  const content = activity?.content;
   console.log(content);
+
+  useEffect(() => {
+    if (!content) {
+      navigate("/");
+    }
+  }, [content, navigate]);
+
+  if (!content) {
+    return null;
+  }
 
   const parsedContent = JSON.parse(content);
   console.log(parsedContent);
