@@ -1,3 +1,4 @@
+import { ChatGPTRequest } from "~/models/chat-gpt";
 import { composePrompt1 } from "~/utils/prompts";
 
 const apiKey = process.env.OPENAI_API_KEY;
@@ -8,13 +9,18 @@ const headers = {
   Authorization: `Bearer ${apiKey}`,
 };
 
-export async function getPrompt({ age, physical, interests }: { age: string, physical: string, interests: string }) {
+export async function getPrompt({ age, physical, interests }: ChatGPTRequest) {
   try {
     const response = await fetch(endpoint, {
       method: "POST",
       headers,
       body: JSON.stringify({
-        messages: [{ role: "user", content: composePrompt1({ age, physical, interests })}],
+        messages: [
+          {
+            role: "user",
+            content: composePrompt1({ age, physical, interests }),
+          },
+        ],
         model: "gpt-4",
       }),
     });

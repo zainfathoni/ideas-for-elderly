@@ -132,7 +132,7 @@ export default function Activity() {
             </dl>
             <div className="mt-10 flex">
               <a
-                href="#"
+                href="https://senar.ai"
                 className="text-base font-semibold leading-7 text-indigo-600"
               >
                 Learn more about our company{" "}

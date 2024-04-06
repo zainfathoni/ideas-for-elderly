@@ -9,7 +9,10 @@ import { activity } from "../utils/cookies.server";
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
   const name = form.get("name");
-  const age = form.get("age");
+  const year_of_birth = parseInt(
+    (form.get("year_of_birth") as string) ?? "0",
+    10,
+  );
   const physical = form.get("physical");
   const interests = form.get("interests");
 
@@ -17,19 +20,28 @@ export const action: ActionFunction = async ({ request }) => {
     throw new Error("Invalid first name");
   }
 
-  if (typeof age !== "string") {
-    throw new Error("Invalid age");
+  if (
+    typeof year_of_birth !== "number" ||
+    year_of_birth < 1900 ||
+    year_of_birth > 2021
+  ) {
+    throw new Error("Invalid year of birth");
   }
-  
+
   if (typeof physical !== "string") {
     throw new Error("Invalid physical capability");
   }
-  
-    if (typeof interests !== "string") {
-      throw new Error("Please input at least one interest");
-    }
 
-  const response: ChatGPTResponse = await getPrompt({ age, physical, interests });
+  if (typeof interests !== "string") {
+    throw new Error("Please input at least one interest");
+  }
+
+  const age = new Date().getFullYear() - year_of_birth;
+  const response: ChatGPTResponse = await getPrompt({
+    age,
+    physical,
+    interests,
+  });
   console.log(response.choices[0].message);
 
   return redirect("/activity", {
@@ -62,7 +74,7 @@ const settings = [
   },
 ];
 
-function classNames(...classes) {
+function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
@@ -86,7 +98,7 @@ export default function Info() {
       >
         <div className="px-4 py-6 sm:p-8">
           <div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-3">
+            <div className="sm:col-span-4">
               <label
                 htmlFor="first-name"
                 className="block text-sm font-medium leading-6 text-gray-900"
@@ -100,46 +112,31 @@ export default function Info() {
                   id="name"
                   autoComplete="given-name"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder="Fulan"
                 />
               </div>
             </div>
-{/* 
-            <div className="sm:col-span-3">
-              <label
-                htmlFor="last-name"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Last name
-              </label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="last-name"
-                  id="last-name"
-                  autoComplete="family-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div> */}
 
-            <div className="sm:col-span-4">
+            <div className="sm:col-span-2">
               <label
-                htmlFor="age"
+                htmlFor="year_of_birth"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Age
+                Year of Birth
               </label>
               <div className="mt-2">
                 <input
-                  id="age"
-                  name="age"
+                  id="year_of_birth"
+                  name="year_of_birth"
                   type="number"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  autoComplete="bday-year"
+                  placeholder="YYYY"
                 />
               </div>
             </div>
 
-            <div className="sm:col-span-4">
+            <div className="sm:col-span-6">
               <label
                 htmlFor="interests"
                 className="block text-sm font-medium leading-6 text-gray-900"
@@ -147,71 +144,18 @@ export default function Info() {
                 What do you like?
               </label>
               <p className="mt-2 text-sm leading-6 text-gray-600">
-                Separate your answers with a comma ","
+                Separate your answers with a comma (,)
               </p>
               <div className="mt-2">
-                <input
-                  id="interests"
+                <textarea
+                  rows={4}
                   name="interests"
-                  type="text"
+                  id="interest"
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  defaultValue={""}
                 />
               </div>
             </div>
-
-            {/* <div className="sm:col-span-4">
-              <label
-                htmlFor="location"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Location / City
-              </label>
-              <div className="mt-2">
-                <select
-                  id="location"
-                  name="location"
-                  autoComplete="location-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                >
-                  <option>Bukit Batok</option>
-                  <option>Orchard Road</option>
-                  <option>Marina Bay</option>
-                  <option>Sentosa Island</option>
-                  <option>Chinatown</option>
-                  <option>Little India</option>
-                  <option>Kampong Glam</option>
-                  <option>Tampines</option>
-                  <option>Jurong East</option>
-                  <option>Woodlands</option>
-                  <option>Punggol</option>
-                  <option>Clarke Quay</option>
-                  <option>East Coast Park</option>
-                  <option>Bugis</option>
-                  <option>Ang Mo Kio</option>
-                  <option>Pasir Ris</option>
-                  <option>test</option>
-                  <option>test</option>
-                </select>
-              </div>
-            </div> */}
-
-            {/* <div className="col-span-full">
-              <label
-                htmlFor="street-address"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Street address
-              </label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="street-address"
-                  id="street-address"
-                  autoComplete="street-address"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div> */}
 
             <div className="sm:col-span-6 sm:col-start-1">
               <label
@@ -223,7 +167,11 @@ export default function Info() {
               <p className="mt-2 text-sm leading-6 text-gray-600">
                 How far are you willing to go?
               </p>
-              <input type="hidden" name="physical" value={selected.description}></input>
+              <input
+                type="hidden"
+                name="physical"
+                value={selected.description}
+              ></input>
               <div className="mt-2">
                 <RadioGroup value={selected} onChange={setSelected}>
                   <RadioGroup.Label className="sr-only">
@@ -293,42 +241,6 @@ export default function Info() {
                 </RadioGroup>
               </div>
             </div>
-
-            {/* <div className="sm:col-span-2">
-              <label
-                htmlFor="region"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                State / Province
-              </label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="region"
-                  id="region"
-                  autoComplete="address-level1"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="postal-code"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                ZIP / Postal code
-              </label>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="postal-code"
-                  id="postal-code"
-                  autoComplete="postal-code"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div> */}
           </div>
         </div>
         <div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
