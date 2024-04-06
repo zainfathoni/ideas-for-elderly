@@ -1,5 +1,6 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { getSession } from "~/utils/sessions.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,7 +12,14 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  return { hasActivities: session.has("message") };
+};
+
 export default function Index() {
+  const { hasActivities } = useLoaderData<{ hasActivities: boolean }>();
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
@@ -27,12 +35,15 @@ export default function Index() {
           >
             Get started
           </Link>
-          <Link
-            to="/activities"
-            className="text-sm font-semibold leading-6 text-gray-900"
-          >
-            Explore our recent recommendations<span aria-hidden="true">→</span>
-          </Link>
+          {hasActivities ? (
+            <Link
+              to="/activities"
+              className="text-sm font-semibold leading-6 text-gray-900"
+            >
+              Explore our recent recommendations
+              <span aria-hidden="true">→</span>
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>

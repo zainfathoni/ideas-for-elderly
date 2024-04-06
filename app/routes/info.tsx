@@ -1,10 +1,21 @@
 import { RadioGroup } from "@headlessui/react";
-import { ActionFunction, redirect } from "@remix-run/node";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, Link, useNavigation } from "@remix-run/react";
 import { useState } from "react";
 import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
-import { activities } from "../utils/cookies.server";
+import { commitSession, getSession } from "~/utils/sessions.server";
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const session = await getSession(request.headers.get("Cookie"));
+
+  if (session.has("message")) {
+    // Redirect to the activities page if there is a generated recommendation.
+    return redirect("/activities");
+  }
+
+  return null;
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
@@ -44,15 +55,16 @@ export const action: ActionFunction = async ({ request }) => {
     interests,
   };
 
+  const session = await getSession(request.headers.get("Cookie"));
+  session.set("info", info);
+
   const response: ChatGPTResponse = await getPrompt(info);
   console.log(response.choices[0].message);
+  session.set("message", response.choices[0].message);
 
   return redirect("/activities", {
     headers: {
-      "Set-Cookie": await activities.serialize({
-        info,
-        message: response.choices[0].message,
-      }),
+      "Set-Cookie": await commitSession(session),
     },
   });
 };

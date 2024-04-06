@@ -1,25 +1,34 @@
-import { LoaderFunction, json, redirect } from "@remix-run/node";
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
-import { useEffect } from "react";
+import {
+  ActionFunctionArgs,
+  LoaderFunction,
+  json,
+  redirect,
+} from "@remix-run/node";
+import { Form, useLoaderData } from "@remix-run/react";
 import { Activity, Info, Message } from "~/models/chat-gpt";
-import { activities } from "../utils/cookies.server";
+import { destroySession, getSession } from "~/utils/sessions.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const cookieHeader = request.headers.get("Cookie");
-  const cookie: { info: Info; message: Message } | null =
-    (await activities.parse(cookieHeader)) || {};
+  const session = await getSession(request.headers.get("Cookie"));
 
-  console.log(cookie);
-
-  if (!cookie) {
-    return redirect("/");
+  if (!session.has("message")) {
+    // Redirect to the activities page if there is a generated recommendation.
+    return redirect("/info");
   }
 
-  return json(cookie);
+  return json({ info: session.get("info"), message: session.get("message") });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const session = await getSession(request.headers.get("Cookie"));
+  return redirect("/info", {
+    headers: {
+      "Set-Cookie": await destroySession(session),
+    },
+  });
 };
 
 export default function Activities() {
-  const navigate = useNavigate();
   const { info, message } = useLoaderData<{
     info: Info;
     message: Message;
@@ -28,12 +37,6 @@ export default function Activities() {
 
   const content = message?.content;
   console.log(content);
-
-  useEffect(() => {
-    if (!content) {
-      navigate("/");
-    }
-  }, [content, navigate]);
 
   if (!content) {
     return null;
@@ -53,12 +56,11 @@ export default function Activities() {
             {info.age} years old with {info.interests} interests and is willing
             to go {info.physical}.
           </p>
-          <Link
-            to="/info"
-            className="mt-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-500"
-          >
-            Generate new recommendations<span aria-hidden="true">→</span>
-          </Link>
+          <Form method="post">
+            <button className="mt-2 text-sm font-semibold leading-6 text-gray-700 hover:text-gray-500">
+              Generate new recommendations<span aria-hidden="true">→</span>
+            </button>
+          </Form>
           <div className="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
             {parsedContent.map(
               ({
