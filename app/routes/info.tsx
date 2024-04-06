@@ -3,6 +3,7 @@ import { ActionFunction, redirect } from "@remix-run/node";
 import { Form } from "@remix-run/react";
 import { useState } from "react";
 import { getPrompt } from "~/services/ai";
+import { activity } from "../utils/cookies.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
@@ -14,7 +15,12 @@ export const action: ActionFunction = async ({ request }) => {
 
   const response = await getPrompt({ firstName });
   console.log(response.choices[0].message);
-  return redirect("/activity");
+
+  return redirect("/activity", {
+    headers: {
+      "Set-Cookie": await activity.serialize(response.choices[0].message),
+    },
+  });
 };
 
 const settings = [
