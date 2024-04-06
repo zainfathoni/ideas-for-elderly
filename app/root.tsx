@@ -29,5 +29,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <div className="mx-auto grid max-w-4xl">
+      <Outlet />;
+    </div>
+  );
 }
