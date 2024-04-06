@@ -1,12 +1,13 @@
 import { LoaderFunction, json, redirect } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
-import { Activity, Message } from "~/models/chat-gpt";
-import { activity } from "../utils/cookies.server";
+import { Activity, Info, Message } from "~/models/chat-gpt";
+import { activities } from "../utils/cookies.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const cookieHeader = request.headers.get("Cookie");
-  const cookie: Message | null = (await activity.parse(cookieHeader)) || {};
+  const cookie: { info: Info; message: Message } | null =
+    (await activities.parse(cookieHeader)) || {};
 
   console.log(cookie);
 
@@ -14,15 +15,18 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/");
   }
 
-  return json({ activity: cookie });
+  return json(cookie);
 };
 
 export default function Activities() {
   const navigate = useNavigate();
-  const { activity } = useLoaderData<{ activity: Message | null }>();
-  console.log(activity);
+  const { info, message } = useLoaderData<{
+    info: Info;
+    message: Message;
+  }>();
+  console.log(info);
 
-  const content = activity?.content;
+  const content = message?.content;
   console.log(content);
 
   useEffect(() => {
@@ -45,7 +49,9 @@ export default function Activities() {
             Recommended Activities
           </h2>
           <p className="mt-2 text-lg leading-8 text-gray-600">
-            Here are some activities that you can do with your constraints.
+            Hi, {info.name}. Here are some activities that for a(n) {info.age}{" "}
+            years old with {info.interests} interests and is willing to go{" "}
+            {info.physical}.
           </p>
           <div className="mt-16 space-y-20 lg:mt-20 lg:space-y-20">
             {parsedContent.map(({ Title, Description }) => (

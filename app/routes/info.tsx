@@ -2,9 +2,9 @@ import { RadioGroup } from "@headlessui/react";
 import { ActionFunction, redirect } from "@remix-run/node";
 import { Form, Link, useNavigation } from "@remix-run/react";
 import { useState } from "react";
-import { ChatGPTResponse } from "~/models/chat-gpt";
+import { ChatGPTRequest, ChatGPTResponse } from "~/models/chat-gpt";
 import { getPrompt } from "~/services/ai";
-import { activity } from "../utils/cookies.server";
+import { activities } from "../utils/cookies.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const form = await request.formData();
@@ -37,17 +37,22 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   const age = new Date().getFullYear() - year_of_birth;
-  const response: ChatGPTResponse = await getPrompt({
+  const info: ChatGPTRequest & { name: string } = {
+    name,
     age,
     physical,
     interests,
-  });
+  };
+
+  const response: ChatGPTResponse = await getPrompt(info);
   console.log(response.choices[0].message);
 
   return redirect("/activities", {
     headers: {
-      // TODO: Store the info in the cookie, too
-      "Set-Cookie": await activity.serialize(response.choices[0].message),
+      "Set-Cookie": await activities.serialize({
+        info,
+        message: response.choices[0].message,
+      }),
     },
   });
 };

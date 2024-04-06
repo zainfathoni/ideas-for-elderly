@@ -4,6 +4,8 @@ export type ChatGPTRequest = {
   interests: string;
 };
 
+export type Info = ChatGPTRequest & { name: string };
+
 export type ChatGPTResponse = {
   choices: Array<{
     message: Message;
