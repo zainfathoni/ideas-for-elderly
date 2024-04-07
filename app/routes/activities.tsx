@@ -58,7 +58,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (index && (index === "0" || index === "1" || index === "2")) {
     const activities = activitiesSession.get("data");
     const activity = activities?.[parseInt(index)];
-    console.log("Picked Activity: ", activity);
     if (!activity) {
       return null;
     }
@@ -76,7 +75,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       response.choices[0].message.content,
     );
 
-    activitySession.set(index, detailedActivity);
+    activitySession.set(index, {
+      ...activity,
+      ...detailedActivity,
+    });
 
     return redirect(`/activity/${index}`, {
       headers: {
@@ -94,7 +96,7 @@ export default function Activities() {
   const navigation = useNavigation();
   const loading = navigation.state === "submitting";
   const loadingIndex = navigation.formData?.get("index") ?? -1;
-  console.log("Loading Index: ", loadingIndex);
+  console.debug("Loading Index: ", loadingIndex);
 
   if (!info || !activities) {
     return null;
