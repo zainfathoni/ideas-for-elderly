@@ -1,28 +1,16 @@
-import { createCookieSessionStorage } from "@remix-run/node";
-import { DetailedActivity } from "~/models/chat-gpt";
+import { activity1Cookie } from "./activity1.server";
+import { activity2Cookie } from "./activity2.server";
+import { activity3Cookie } from "./activity3.server";
 
-type SessionData = {
-  "0": DetailedActivity;
-  "1": DetailedActivity;
-  "2": DetailedActivity;
+export const pickActivityCookie = (index: number) => {
+  switch (index) {
+    case 0:
+      return activity1Cookie;
+    case 1:
+      return activity2Cookie;
+    case 2:
+      return activity3Cookie;
+    default:
+      return null;
+  }
 };
-
-type SessionFlashData = {
-  error: string;
-};
-
-export const activityCookie = createCookieSessionStorage<
-  SessionData,
-  SessionFlashData
->({
-  cookie: {
-    name: "activity",
-    httpOnly: true,
-    // one week
-    maxAge: 60 * 60 * 24 * 7,
-    path: "/",
-    sameSite: "lax",
-    secrets: ["s3cret1"],
-    secure: true,
-  },
-});

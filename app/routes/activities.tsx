@@ -8,7 +8,10 @@ import { Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { ChatGPTResponse, DetailedActivity } from "~/models/chat-gpt";
 import { getActivityPrompt } from "~/services/ai";
 import { activitiesCookie } from "~/sessions/activities.server";
-import { activityCookie } from "~/sessions/activity.server";
+import { pickActivityCookie } from "~/sessions/activity.server";
+import { activity1Cookie } from "~/sessions/activity1.server";
+import { activity2Cookie } from "~/sessions/activity2.server";
+import { activity3Cookie } from "~/sessions/activity3.server";
 import { infoCookie } from "~/sessions/info.server";
 import { classNames } from "~/utils/class-names";
 
@@ -39,7 +42,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const form = await request.formData();
   const method = form.get("_method");
   if (method === "delete") {
-    const activitySession = await activityCookie.getSession(
+    const activity1Session = await activity1Cookie.getSession(
+      request.headers.get("Cookie"),
+    );
+    const activity2Session = await activity2Cookie.getSession(
+      request.headers.get("Cookie"),
+    );
+    const activity3Session = await activity3Cookie.getSession(
       request.headers.get("Cookie"),
     );
     return redirect("/info", {
@@ -49,7 +58,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           "Set-Cookie",
           await activitiesCookie.destroySession(activitiesSession),
         ],
-        ["Set-Cookie", await activityCookie.destroySession(activitySession)],
+        ["Set-Cookie", await activity1Cookie.destroySession(activity1Session)],
+        ["Set-Cookie", await activity2Cookie.destroySession(activity2Session)],
+        ["Set-Cookie", await activity3Cookie.destroySession(activity3Session)],
       ],
     });
   }
@@ -62,10 +73,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return null;
     }
 
+    const activityCookie = pickActivityCookie(parseInt(index));
+    if (!activityCookie) {
+      // Redirect to the activities page if the index is invalid.
+      return redirect("/activities");
+    }
     const activitySession = await activityCookie.getSession(
       request.headers.get("Cookie"),
     );
-    if (activitySession.has(index)) {
+    if (activitySession.has("data")) {
       // Redirect to the activity page if the activity is already elaborated.
       return redirect(`/activity/${index}`);
     }
@@ -75,7 +91,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       response.choices[0].message.content,
     );
 
-    activitySession.set(index, {
+    activitySession.set("data", {
       ...activity,
       ...detailedActivity,
     });
@@ -187,14 +203,14 @@ export default function Activities() {
                             type="submit"
                             disabled={loading}
                             className={classNames(
-                              "ml-auto rounded bg-white px-2 py-1 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
-                              loading ? "cursor-not-allowed bg-gray-50" : "",
+                              "ml-auto rounded bg-white px-2 py-1 text-sm shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
+                              loading
+                                ? "cursor-not-allowed bg-gray-50 text-gray-600"
+                                : "text-gray-900",
                             )}
                           >
                             {/* FIXME: Somehow the loadingIndex is not equal index */}
-                            {loading && loadingIndex === index
-                              ? "Elaborating..."
-                              : "Elaborate more"}
+                            {loading ? "Elaborating..." : "Elaborate more"}
                           </button>
                         </div>
                       </div>

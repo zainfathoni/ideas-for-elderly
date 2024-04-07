@@ -8,25 +8,31 @@ import {
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { DetailedActivity } from "~/models/chat-gpt";
-import { activityCookie } from "~/sessions/activity.server";
+import { pickActivityCookie } from "~/sessions/activity.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const activitySession = await activityCookie.getSession(
-    request.headers.get("Cookie"),
-  );
-
   const { index } = params;
   if (!index || (index !== "0" && index !== "1" && index !== "2")) {
     // Redirect to the activities page if the index is invalid.
     return redirect("/activities");
   }
 
-  if (!activitySession.has(index)) {
+  const activityCookie = pickActivityCookie(parseInt(index));
+  if (!activityCookie) {
+    // Redirect to the activities page if the index is invalid.
+    return redirect("/activities");
+  }
+
+  const activitySession = await activityCookie.getSession(
+    request.headers.get("Cookie"),
+  );
+
+  if (!activitySession.has("data")) {
     // Redirect to the activities page if there is no element in the index.
     return redirect("/activities");
   }
 
-  return json({ activity: activitySession.get(index) });
+  return json({ activity: activitySession.get("data") });
 };
 
 export default function Activity() {
